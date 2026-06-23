@@ -90,7 +90,6 @@ function GetInspired() {
       <div className="mx-auto max-w-6xl px-4 py-16">
         <SectionTitle
           title="Plan by experience"
-          subtitle="This page is now interactive: search an idea, choose a Nepal location, or filter by travel mood."
         />
 
         <div className="mb-8 grid gap-4 rounded-md bg-white p-5 shadow-sm md:grid-cols-[1fr_280px_auto]">

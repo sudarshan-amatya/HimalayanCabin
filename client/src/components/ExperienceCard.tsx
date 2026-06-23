@@ -7,7 +7,7 @@ type ExperienceCardProps = {
 };
 
 function ExperienceCard({ experience }: ExperienceCardProps) {
-  const cabinUrl = `/cabins?search=${encodeURIComponent(experience.search)}&location=${encodeURIComponent(experience.location)}`;
+  const cabinUrl = `/cabins?location=${encodeURIComponent(experience.location)}`;
 
   return (
     <article className="overflow-hidden rounded-md bg-[#5f6d67] text-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
