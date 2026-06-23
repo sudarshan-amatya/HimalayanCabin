@@ -1,0 +1,289 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  OWNER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentMethod {
+  UNPAID
+  PAY_AT_PROPERTY
+  GIFT_CREDIT
+  FAKE_ESEWA
+  ESEWA
+  GIFT
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+}
+
+enum EsewaPaymentStatus {
+  INITIATED
+  PENDING
+  COMPLETE
+  FAILED
+}
+
+enum PaymentPurpose {
+  BOOKING
+  GIFT_VOUCHER
+  GIFT_CABIN
+}
+
+enum CabinStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum GiftType {
+  VOUCHER
+  CABIN
+}
+
+enum GiftStatus {
+  PENDING_OWNER_CONFIRMATION
+  SENT
+  ACCEPTED
+  DECLINED
+  REJECTED
+}
+
+enum NotificationType {
+  BOOKING
+  GIFT
+  CABIN
+  PAYMENT
+  FEEDBACK
+  PROFILE
+  SYSTEM
+}
+
+model User {
+  id           String  @id @default(uuid())
+  firstName    String
+  lastName     String
+  email        String  @unique
+  googleId     String? @unique
+  phone        String?
+  profileImage String?
+  password     String?
+  role         Role    @default(USER)
+  giftCredit   Int     @default(0)
+
+  bookings       Booking[]
+  ownedCabins    Cabin[]         @relation("CabinOwner")
+  bookmarks      Bookmark[]
+  reviewsMade    Review[]
+  sentGifts      Gift[]          @relation("GiftSender")
+  receivedGifts  Gift[]          @relation("GiftRecipient")
+  feedbacks      Feedback[]
+  esewaPayments  EsewaPayment[]
+  notifications  Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Cabin {
+  id          String      @id @default(uuid())
+  ownerId     String?
+  name        String
+  location    String
+  price       Int
+  image       String?
+  images      String[]    @default([])
+  description String
+  rating      Float       @default(0)
+  reviews     Int         @default(0)
+  facilities  String[]    @default([])
+  status      CabinStatus @default(PENDING)
+  isActive    Boolean     @default(true)
+
+  owner       User?       @relation("CabinOwner", fields: [ownerId], references: [id])
+  bookings    Booking[]
+  bookmarks   Bookmark[]
+  reviewItems Review[]
+  gifts       Gift[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cabins")
+}
+
+model Booking {
+  id               String        @id @default(uuid())
+  userId           String
+  cabinId          String
+  giftId           String?       @unique
+  fullName         String
+  phone            String
+  email            String
+  checkInDate      DateTime
+  checkOutDate     DateTime
+  travellers       Int
+  specialRequest   String?
+  totalPrice       Int
+  status           BookingStatus @default(PENDING)
+  paymentMethod    PaymentMethod @default(UNPAID)
+  paymentStatus    PaymentStatus @default(UNPAID)
+  paymentReference String?
+  paidAt           DateTime?
+  giftCreditUsed   Int           @default(0)
+  isGift           Boolean       @default(false)
+
+  user           User           @relation(fields: [userId], references: [id])
+  cabin          Cabin          @relation(fields: [cabinId], references: [id])
+  gift           Gift?          @relation(fields: [giftId], references: [id])
+  esewaPayments  EsewaPayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bookings")
+}
+
+model Bookmark {
+  id      String @id @default(uuid())
+  userId  String
+  cabinId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cabin Cabin @relation(fields: [cabinId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, cabinId])
+  @@map("bookmarks")
+}
+
+model Review {
+  id      String @id @default(uuid())
+  userId  String
+  cabinId String
+  rating  Int
+  comment String?
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cabin Cabin @relation(fields: [cabinId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, cabinId])
+  @@map("reviews")
+}
+
+model Gift {
+  id               String        @id @default(uuid())
+  senderId         String
+  recipientId      String?
+  recipientName    String
+  recipientEmail   String
+  senderName       String
+  giftType         GiftType
+  amount           Int?
+  cabinId          String?
+  checkInDate      DateTime?
+  checkOutDate     DateTime?
+  travellers       Int?
+  message          String?
+  deliveryDate     DateTime?
+  totalPrice       Int?
+  status           GiftStatus    @default(SENT)
+  paymentMethod    PaymentMethod @default(ESEWA)
+  paymentStatus    PaymentStatus @default(PAID)
+  paymentReference String?
+  paidAt           DateTime?
+  acceptedAt       DateTime?
+  declinedAt       DateTime?
+
+  sender         User           @relation("GiftSender", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient      User?          @relation("GiftRecipient", fields: [recipientId], references: [id], onDelete: SetNull)
+  cabin          Cabin?         @relation(fields: [cabinId], references: [id])
+  booking        Booking?
+  esewaPayments  EsewaPayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("gifts")
+}
+
+model EsewaPayment {
+  id              String              @id @default(uuid())
+  userId          String
+  bookingId       String?
+  giftId          String?
+  purpose         PaymentPurpose
+  amount          Int
+  transactionUuid String              @unique
+  productCode     String
+  status          EsewaPaymentStatus  @default(INITIATED)
+  refId           String?
+  transactionCode String?
+  rawResponse     Json?
+  giftDraft       Json?
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  gift    Gift?    @relation(fields: [giftId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("esewa_payments")
+}
+
+model Feedback {
+  id         String  @id @default(uuid())
+  userId     String
+  subject    String
+  message    String
+  screenshot String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("feedbacks")
+}
+
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  link      String?
+  readAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, readAt, createdAt])
+  @@map("notifications")
+}

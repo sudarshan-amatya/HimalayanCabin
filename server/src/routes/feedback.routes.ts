@@ -1,0 +1,13 @@
+import { Router } from "express";
+import { createFeedback, deleteFeedback, getAllFeedbacks } from "../controllers/feedback.controller.js";
+import { protect } from "../middlewares/auth.middleware.js";
+import { adminOnly } from "../middlewares/admin.middleware.js";
+import { upload } from "../middlewares/upload.middleware.js";
+
+const router = Router();
+
+router.post("/", protect, upload.single("screenshot"), createFeedback);
+router.get("/", protect, adminOnly, getAllFeedbacks);
+router.delete("/:id", protect, adminOnly, deleteFeedback);
+
+export default router;
