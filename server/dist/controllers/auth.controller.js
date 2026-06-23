@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
 import { prisma } from "../config/prisma.js";
-import { toPublicUploadUrl } from "../middlewares/upload.middleware.js";
+import { uploadImageToCloudinary } from "../utils/cloudinaryUpload.js";
 import { generateToken } from "../utils/generateToken.js";
 import { createNotification } from "../utils/notification.js";
 function removePassword(user) {
@@ -207,10 +207,10 @@ export async function updateProfileImage(req, res) {
         if (!req.file) {
             return res.status(400).json({ message: "Profile image file is required" });
         }
-        const profileImage = toPublicUploadUrl(req.file.filename);
+        const uploadedImage = await uploadImageToCloudinary(req.file, "profiles");
         const user = await prisma.user.update({
             where: { id: req.user.id },
-            data: { profileImage },
+            data: { profileImage: uploadedImage.url },
         });
         return res.status(200).json({ message: "Profile photo updated successfully", user: removePassword(user) });
     }

@@ -1,5 +1,5 @@
 import { prisma } from "../config/prisma.js";
-import { toPublicUploadUrl } from "../middlewares/upload.middleware.js";
+import { uploadImageToCloudinary } from "../utils/cloudinaryUpload.js";
 import { notifyAdmins } from "../utils/notification.js";
 const feedbackInclude = {
     user: {
@@ -25,7 +25,9 @@ export async function createFeedback(req, res) {
         if (!subject || !message) {
             return res.status(400).json({ message: "Subject and message are required" });
         }
-        const screenshot = req.file ? toPublicUploadUrl(req.file.filename) : null;
+        const screenshot = req.file
+            ? (await uploadImageToCloudinary(req.file, "feedback")).url
+            : null;
         const feedback = await prisma.feedback.create({
             data: {
                 userId: req.user.id,
