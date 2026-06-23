@@ -33,6 +33,7 @@ function AdminCabinApprovals() {
         setLoading(false);
       }
     }
+
     fetchCabins();
   }, []);
 
@@ -49,10 +50,13 @@ function AdminCabinApprovals() {
       setActionId(id);
       setError("");
       setSuccess("");
+
       const data = await updateCabinStatus(id, status);
+
       setCabins((current) =>
         current.map((cabin) => (cabin.id === id ? data.cabin : cabin)),
       );
+
       setSuccess(`Cabin marked as ${status.toLowerCase()}.`);
       window.dispatchEvent(new Event("notifications-changed"));
     } catch (error) {
@@ -79,6 +83,7 @@ function AdminCabinApprovals() {
             shown for verification.
           </p>
         </div>
+
         <div className="flex flex-wrap gap-3">
           <Link
             to="/admin/cabins"
@@ -86,6 +91,7 @@ function AdminCabinApprovals() {
           >
             Manage cabins
           </Link>
+
           <Link
             to="/admin"
             className="rounded-md border border-[#24472f] px-5 py-3 text-sm font-semibold text-[#24472f]"
@@ -101,7 +107,11 @@ function AdminCabinApprovals() {
             key={item}
             type="button"
             onClick={() => setFilter(item)}
-            className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold ${filter === item ? "bg-[#24472f] text-white" : "bg-[#eff8f5] text-[#24472f]"}`}
+            className={`cursor-pointer rounded-full px-5 py-2 text-sm font-semibold ${
+              filter === item
+                ? "bg-[#24472f] text-white"
+                : "bg-[#eff8f5] text-[#24472f]"
+            }`}
           >
             {item}
           </button>
@@ -113,6 +123,7 @@ function AdminCabinApprovals() {
           {error}
         </p>
       )}
+
       {success && (
         <p className="mb-6 rounded-md bg-green-100 px-4 py-3 text-sm text-green-700">
           {success}
@@ -129,83 +140,102 @@ function AdminCabinApprovals() {
         </p>
       ) : (
         <div className="grid gap-5">
-          {filteredCabins.map((cabin) => (
-            <article
-              key={cabin.id}
-              className="rounded-md border border-gray-200 bg-white p-5 shadow-sm"
-            >
-              <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)_240px]">
-                {cabin.image ? (
-                  <img
-                    src={getApiAssetUrl(cabin.image)}
-                    alt={cabin.name}
-                    className="h-44 w-full rounded-md object-cover"
-                  />
-                ) : (
-                  <div className="h-44 rounded-md bg-[#eff8f5]" />
-                )}
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="wrap-break-word font-serif text-2xl font-bold text-[#101918]">
-                      {cabin.name}
-                    </h2>
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass(cabin.status)}`}
-                    >
-                      {cabin.status || "PENDING"}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-600">
-                    {cabin.location} · Rs. {cabin.price.toLocaleString()}pp
-                  </p>
-                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-600">
-                    {cabin.description}
-                  </p>
-                  <div className="mt-4 rounded-md bg-[#eff8f5] p-4 text-sm text-gray-700">
-                    <p className="font-semibold text-[#101918]">
-                      Owner: {cabin.owner?.firstName} {cabin.owner?.lastName}
+          {filteredCabins.map((cabin) => {
+            const isUpdating = actionId === cabin.id;
+
+            return (
+              <article
+                key={cabin.id}
+                className="rounded-md border border-gray-200 bg-white p-5 shadow-sm"
+              >
+                <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)_260px] lg:items-start">
+                  {cabin.image ? (
+                    <img
+                      src={getApiAssetUrl(cabin.image)}
+                      alt={cabin.name}
+                      className="h-44 w-full rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="h-44 rounded-md bg-[#eff8f5]" />
+                  )}
+
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="wrap-break-word font-serif text-2xl font-bold text-[#101918]">
+                        {cabin.name}
+                      </h2>
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass(
+                          cabin.status,
+                        )}`}
+                      >
+                        {cabin.status || "PENDING"}
+                      </span>
+                    </div>
+
+                    <p className="mt-2 text-sm text-gray-600">
+                      {cabin.location} · Rs. {cabin.price.toLocaleString()}pp
                     </p>
-                    <p className="wrap-break-word">{cabin.owner?.email}</p>
-                    <p>{cabin.owner?.phone || "No contact number added"}</p>
-                  </div>
-                </div>
-                <div className="flex w-full flex-col gap-3 md:w-[300px] lg:w-[300px]">
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={() => updateCabinStatus(cabin.id, "APPROVED")}
-                      disabled={cabin.status === "APPROVED"}
-                      className="rounded-lg bg-[#173F2A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#102c1d] disabled:cursor-not-allowed disabled:bg-gray-400"
-                    >
-                      Approve
-                    </button>
 
-                    <button
-                      onClick={() => updateCabinStatus(cabin.id, "REJECTED")}
-                      disabled={cabin.status === "REJECTED"}
-                      className="rounded-lg border border-red-200 px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      Reject
-                    </button>
+                    <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-600">
+                      {cabin.description}
+                    </p>
+
+                    <div className="mt-4 rounded-md bg-[#eff8f5] p-4 text-sm text-gray-700">
+                      <p className="font-semibold text-[#101918]">
+                        Owner: {cabin.owner?.firstName} {cabin.owner?.lastName}
+                      </p>
+                      <p className="wrap-break-word">{cabin.owner?.email}</p>
+                      <p>{cabin.owner?.phone || "No contact number added"}</p>
+                    </div>
                   </div>
 
-                  <button
-                    onClick={() => updateCabinStatus(cabin.id, "PENDING")}
-                    disabled={cabin.status === "PENDING"}
-                    className="rounded-lg border border-gray-200 px-5 py-3 text-sm font-semibold text-[#173F2A] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Set pending
-                  </button>
+                  <div className="flex w-full min-w-0 flex-col gap-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleStatusChange(cabin.id, "APPROVED")
+                        }
+                        disabled={isUpdating || cabin.status === "APPROVED"}
+                        className="rounded-lg bg-[#173F2A] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#102c1d] disabled:cursor-not-allowed disabled:bg-gray-400"
+                      >
+                        {isUpdating ? "Saving..." : "Approve"}
+                      </button>
 
-                  <Link
-                    to={`/cabins/${cabin.id}`}
-                    className="rounded-lg bg-[#EFF8F5] px-5 py-3 text-center text-sm font-semibold text-[#173F2A] transition hover:bg-[#dff0e9]"
-                  >
-                    View public page
-                  </Link>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleStatusChange(cabin.id, "REJECTED")
+                        }
+                        disabled={isUpdating || cabin.status === "REJECTED"}
+                        className="rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Reject
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleStatusChange(cabin.id, "PENDING")}
+                      disabled={isUpdating || cabin.status === "PENDING"}
+                      className="rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold text-[#173F2A] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Set pending
+                    </button>
+
+                    <Link
+                      to={`/cabins/${cabin.id}`}
+                      className="rounded-lg bg-[#EFF8F5] px-4 py-3 text-center text-sm font-semibold text-[#173F2A] transition hover:bg-[#dff0e9]"
+                    >
+                      View public page
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       )}
     </section>
