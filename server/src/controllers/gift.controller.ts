@@ -113,7 +113,7 @@ export async function acceptGift(req: Request<{ id: string }>, res: Response) {
 
     const { id } = req.params;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const gift = await tx.gift.findUnique({
         where: { id },
         include: giftInclude,

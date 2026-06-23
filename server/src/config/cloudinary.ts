@@ -1,21 +1,18 @@
 import { v2 as cloudinary } from "cloudinary";
-
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET;
+import { env } from "./env.js";
 
 cloudinary.config({
-  cloud_name: cloudName,
-  api_key: apiKey,
-  api_secret: apiSecret,
+  cloud_name: env.cloudinaryCloudName,
+  api_key: env.cloudinaryApiKey,
+  api_secret: env.cloudinaryApiSecret,
   secure: true,
 });
 
 export function assertCloudinaryConfigured() {
   const missingKeys = [
-    ["CLOUDINARY_CLOUD_NAME", cloudName],
-    ["CLOUDINARY_API_KEY", apiKey],
-    ["CLOUDINARY_API_SECRET", apiSecret],
+    ["CLOUDINARY_CLOUD_NAME", env.cloudinaryCloudName],
+    ["CLOUDINARY_API_KEY", env.cloudinaryApiKey],
+    ["CLOUDINARY_API_SECRET", env.cloudinaryApiSecret],
   ]
     .filter(([, value]) => !value)
     .map(([key]) => key);

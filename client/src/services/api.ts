@@ -1,11 +1,7 @@
-const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+import { getRequiredClientEnv } from "../config/env";
 
 function getApiBaseUrl() {
-  if (!API_URL) {
-    throw new Error("VITE_API_URL is missing. Add it in client/.env, for example VITE_API_URL=http://localhost:4000");
-  }
-
-  return API_URL;
+  return getRequiredClientEnv("apiUrl");
 }
 
 export function getApiAssetUrl(path: string | null | undefined) {

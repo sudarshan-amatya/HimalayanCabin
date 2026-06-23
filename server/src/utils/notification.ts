@@ -46,5 +46,5 @@ export async function notifyAdmins(input: Omit<NotifyInput, "userId">) {
 
   if (admins.length === 0) return;
 
-  await notifyUsers(admins.map((admin) => ({ ...input, userId: admin.id })));
+  await notifyUsers(admins.map((admin: { id: string }) => ({ ...input, userId: admin.id })));
 }

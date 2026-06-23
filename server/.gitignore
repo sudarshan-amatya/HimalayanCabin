@@ -1,5 +1,10 @@
 node_modules
-# Keep environment variables out of version control
+dist
 .env
 
+# Keep generated Prisma/client artifacts out of source control
 /src/generated/prisma
+
+# Local uploads are only kept for old records. New uploads use Cloudinary.
+uploads/*
+!uploads/.gitkeep

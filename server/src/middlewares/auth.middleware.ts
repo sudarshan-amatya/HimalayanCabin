@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
 
 type Role = "USER" | "OWNER" | "ADMIN";
 
@@ -28,15 +29,7 @@ export function protect(req: Request, res: Response, next: NextFunction) {
     }
 
     const token = authHeader.split(" ")[1];
-    const secret = process.env.JWT_SECRET;
-
-    if (!secret) {
-      return res.status(500).json({
-        message: "JWT_SECRET is missing",
-      });
-    }
-
-    const decoded = jwt.verify(token, secret) as JwtPayload;
+    const decoded = jwt.verify(token, env.jwtSecret) as JwtPayload;
     req.user = decoded;
 
     next();

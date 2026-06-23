@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
+import { env } from "../config/env.js";
 import { prisma } from "../config/prisma.js";
 import { uploadImageToCloudinary } from "../utils/cloudinaryUpload.js";
 import { generateToken } from "../utils/generateToken.js";
@@ -138,9 +139,9 @@ export async function login(req: Request, res: Response) {
 export async function googleLogin(req: Request, res: Response) {
   try {
     const { credential, role } = req.body;
-    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientId = env.googleClientId;
 
-    if (!clientId) return res.status(500).json({ message: "GOOGLE_CLIENT_ID is missing in server .env" });
+    if (!clientId) return res.status(500).json({ message: "GOOGLE_CLIENT_ID is missing in server environment variables" });
     if (!credential) return res.status(400).json({ message: "Google credential is required" });
 
     const client = new OAuth2Client(clientId);

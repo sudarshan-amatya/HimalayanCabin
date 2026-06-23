@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "build:deploy": "npx prisma generate && npx prisma migrate deploy && npm run build"
   },
   "keywords": [],
   "author": "",
@@ -24,9 +25,7 @@
     "google-auth-library": "^10.5.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
-    "ws": "^8.21.0"
-  },
-  "devDependencies": {
+    "ws": "^8.21.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",

@@ -94,7 +94,9 @@ async function withSuccessfulBookingCounts<T extends { user?: { id: string } | n
     _count: { _all: true },
   });
 
-  const countMap = new Map(grouped.map((item) => [item.userId, (item._count as { _all: number })._all]));
+  const countMap = new Map(
+    grouped.map((item: { userId: string; _count: { _all: number } }) => [item.userId, item._count._all]),
+  );
 
   return bookings.map((booking) => ({
     ...booking,
@@ -434,7 +436,7 @@ export async function updateMyBookingPayment(req: Request<{ id: string }>, res: 
       return res.status(400).json({ message: "Invalid payment method" });
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const booking = await tx.booking.findFirst({
         where: { id, userId: req.user!.id },
         include: { cabin: cabinWithOwner, gift: true },

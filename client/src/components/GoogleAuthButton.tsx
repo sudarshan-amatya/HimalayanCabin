@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { UserRole } from "../types";
+import { clientEnv } from "../config/env";
 
 declare global {
   interface Window {
@@ -26,11 +27,11 @@ const GOOGLE_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 function GoogleAuthButton({ role, onCredential, onError }: GoogleAuthButtonProps) {
   const buttonRef = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
+  const clientId = clientEnv.googleClientId;
 
   useEffect(() => {
     if (!clientId) {
-      onError?.("VITE_GOOGLE_CLIENT_ID is missing in client .env");
+      onError?.("VITE_GOOGLE_CLIENT_ID is missing in client environment variables");
       return;
     }
 
@@ -82,7 +83,7 @@ function GoogleAuthButton({ role, onCredential, onError }: GoogleAuthButtonProps
   if (!clientId) {
     return (
       <p className="rounded-md bg-yellow-50 px-4 py-3 text-xs text-yellow-800">
-        Add VITE_GOOGLE_CLIENT_ID to client .env to enable Google login.
+        Add VITE_GOOGLE_CLIENT_ID to client environment variables to enable Google login.
       </p>
     );
   }

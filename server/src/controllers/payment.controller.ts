@@ -91,7 +91,7 @@ export async function initiateBookingEsewaPayment(req: Request<{ id: string }>, 
 
     const transactionUuid = generateTransactionUuid("BOOKING");
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.esewaPayment.create({
         data: {
           userId: req.user!.id,
@@ -263,7 +263,7 @@ export async function esewaSuccess(req: Request, res: Response) {
       return redirect(res, `/payment/failure?reason=${encodeURIComponent(String(status || "not-complete"))}`);
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const existingPayment = await tx.esewaPayment.findUnique({ where: { id: payment.id } });
       if (!existingPayment) throw new Error("Payment not found");
 

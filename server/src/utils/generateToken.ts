@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
 
 type Role = "USER" | "OWNER" | "ADMIN";
 
@@ -9,13 +10,7 @@ type TokenPayload = {
 };
 
 export function generateToken(payload: TokenPayload) {
-  const secret = process.env.JWT_SECRET;
-
-  if (!secret) {
-    throw new Error("JWT_SECRET is missing in .env file");
-  }
-
-  return jwt.sign(payload, secret, {
+  return jwt.sign(payload, env.jwtSecret, {
     expiresIn: "7d",
   });
 }

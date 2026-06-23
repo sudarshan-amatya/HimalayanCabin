@@ -1,17 +1,15 @@
+import { Writable } from "node:stream";
 import type { UploadApiResponse } from "cloudinary";
 import { assertCloudinaryConfigured, cloudinary } from "../config/cloudinary.js";
+import { env } from "../config/env.js";
 
 export type CloudinaryUploadResult = {
   url: string;
   publicId: string;
 };
 
-function getRootFolder() {
-  return process.env.CLOUDINARY_FOLDER?.trim() || "himalayan-cabins";
-}
-
 function buildFolderPath(folder?: string) {
-  const rootFolder = getRootFolder();
+  const rootFolder = env.cloudinaryFolder.trim() || "himalayan-cabins";
   const childFolder = folder?.trim().replace(/^\/+|\/+$/g, "");
 
   return childFolder ? `${rootFolder}/${childFolder}` : rootFolder;
@@ -45,7 +43,7 @@ export function uploadImageToCloudinary(
           publicId: result.public_id,
         });
       },
-    );
+    ) as Writable;
 
     uploadStream.end(file.buffer);
   });

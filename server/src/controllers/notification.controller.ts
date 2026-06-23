@@ -11,7 +11,7 @@ export async function getMyNotifications(req: Request, res: Response) {
       take: 80,
     });
 
-    const unreadCount = notifications.filter((notification) => !notification.readAt).length;
+    const unreadCount = notifications.filter((notification: { readAt: Date | null }) => !notification.readAt).length;
 
     return res.status(200).json({
       message: "Notifications fetched successfully",

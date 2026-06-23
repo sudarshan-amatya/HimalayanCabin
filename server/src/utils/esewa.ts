@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { env, getRequiredUrlEnv, trimTrailingSlash } from "../config/env.js";
 
 export type EsewaPurpose = "BOOKING" | "GIFT_VOUCHER" | "GIFT_CABIN";
 
@@ -27,41 +28,31 @@ export type DecodedEsewaResponse = {
   [key: string]: unknown;
 };
 
-function getRequiredEnv(name: string) {
-  const value = process.env[name]?.trim();
-
-  if (!value) {
-    throw new Error(`${name} is missing in server .env`);
-  }
-
-  return value.replace(/\/$/, "");
-}
-
 function getBaseUrl() {
-  return getRequiredEnv("API_BASE_URL");
+  return getRequiredUrlEnv("API_BASE_URL");
 }
 
 export function getFrontendUrl() {
-  return getRequiredEnv("FRONTEND_URL");
+  return getRequiredUrlEnv("FRONTEND_URL");
 }
 
 export function getEsewaConfig() {
-  const mode = process.env.ESEWA_MODE || "test";
+  const mode = env.esewaMode;
   const isProduction = mode === "production" || mode === "live";
 
+  const defaultFormUrl = isProduction
+    ? "https://epay.esewa.com.np/api/epay/main/v2/form"
+    : "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
+
+  const defaultStatusUrl = isProduction
+    ? "https://esewa.com.np/api/epay/transaction/status/"
+    : "https://rc.esewa.com.np/api/epay/transaction/status/";
+
   return {
-    productCode: process.env.ESEWA_PRODUCT_CODE || "EPAYTEST",
-    secretKey: process.env.ESEWA_SECRET_KEY || "8gBm/:&EnhH.1/q",
-    formUrl:
-      process.env.ESEWA_FORM_URL ||
-      (isProduction
-        ? "https://epay.esewa.com.np/api/epay/main/v2/form"
-        : "https://rc-epay.esewa.com.np/api/epay/main/v2/form"),
-    statusUrl:
-      process.env.ESEWA_STATUS_URL ||
-      (isProduction
-        ? "https://esewa.com.np/api/epay/transaction/status/"
-        : "https://rc.esewa.com.np/api/epay/transaction/status/"),
+    productCode: env.esewaProductCode,
+    secretKey: env.esewaSecretKey,
+    formUrl: trimTrailingSlash(env.esewaFormUrl || defaultFormUrl),
+    statusUrl: env.esewaStatusUrl || defaultStatusUrl,
     successUrl: `${getBaseUrl()}/payments/esewa/success`,
     failureUrl: `${getBaseUrl()}/payments/esewa/failure`,
   };

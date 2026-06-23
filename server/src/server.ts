@@ -1,9 +1,10 @@
 import "dotenv/config";
 import path from "path";
 import { fileURLToPath } from "url";
-import express, { type Request, type Response } from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
 
+import { env } from "./config/env.js";
 import authRoutes from "./routes/auth.routes.js";
 import bookingRoutes from "./routes/booking.routes.js";
 import bookmarkRoutes from "./routes/bookmark.routes.js";
@@ -17,18 +18,16 @@ import notificationRoutes from "./routes/notification.routes.js";
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const allowedOrigins = (process.env.CLIENT_ORIGINS || process.env.FRONTEND_URL || "")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = env.clientOrigins;
 
 app.use(
   cors({
-    origin(origin, callback) {
+    origin(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      const normalizedOrigin = origin.replace(/\/+$/, "");
+
+      if (allowedOrigins.length === 0 || allowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       }
 
@@ -39,9 +38,12 @@ app.use(
 );
 
 app.use(express.json());
+
+// Kept only for old database records that still point to /uploads/...
+// New images are uploaded to Cloudinary.
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-app.use((req, _res, next) => {
+app.use((req: Request, _res: Response, next: NextFunction) => {
   console.log(`${req.method} ${req.url}`);
   next();
 });
@@ -49,6 +51,14 @@ app.use((req, _res, next) => {
 app.get("/", (_req: Request, res: Response) => {
   res.json({
     message: "Himalayan Cabins API is running",
+    environment: env.nodeEnv,
+  });
+});
+
+app.get("/health", (_req: Request, res: Response) => {
+  res.json({
+    status: "ok",
+    service: "himalayan-cabins-api",
   });
 });
 
@@ -74,8 +84,6 @@ app.use((_req: Request, res: Response) => {
   });
 });
 
-const PORT = Number(process.env.PORT || 4000);
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(env.port, () => {
+  console.log(`Server running on port ${env.port}`);
 });
