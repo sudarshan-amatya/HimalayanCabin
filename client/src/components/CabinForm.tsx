@@ -139,7 +139,7 @@ function CabinForm({ initialCabin, title, submitLabel, onSubmit, onCancel }: Cab
 
         <div className="md:col-span-2">
           <label className="mb-2 block text-sm font-semibold text-[#24472f]">Main image</label>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div >
             <input type="file" accept="image/*" onChange={handleMainImageFileChange} className="cursor-pointer rounded-md border border-gray-300 bg-white px-4 py-3 text-sm" />
           </div>
           {(mainImageFile || formData.image) && <p className="mt-2 text-xs text-gray-500">{mainImageFile ? `Selected file: ${mainImageFile.name}` : "Using image URL"}</p>}
