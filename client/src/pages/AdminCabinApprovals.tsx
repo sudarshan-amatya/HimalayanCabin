@@ -24,7 +24,11 @@ function AdminCabinApprovals() {
         const data = await getAdminCabins();
         setCabins(data.cabins);
       } catch (error) {
-        setError(error instanceof Error ? error.message : "Failed to load cabin approvals");
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load cabin approvals",
+        );
       } finally {
         setLoading(false);
       }
@@ -32,7 +36,13 @@ function AdminCabinApprovals() {
     fetchCabins();
   }, []);
 
-  const filteredCabins = useMemo(() => (filter === "ALL" ? cabins : cabins.filter((cabin) => cabin.status === filter)), [cabins, filter]);
+  const filteredCabins = useMemo(
+    () =>
+      filter === "ALL"
+        ? cabins
+        : cabins.filter((cabin) => cabin.status === filter),
+    [cabins, filter],
+  );
 
   async function handleStatusChange(id: string, status: CabinStatus) {
     try {
@@ -40,11 +50,17 @@ function AdminCabinApprovals() {
       setError("");
       setSuccess("");
       const data = await updateCabinStatus(id, status);
-      setCabins((current) => current.map((cabin) => (cabin.id === id ? data.cabin : cabin)));
+      setCabins((current) =>
+        current.map((cabin) => (cabin.id === id ? data.cabin : cabin)),
+      );
       setSuccess(`Cabin marked as ${status.toLowerCase()}.`);
       window.dispatchEvent(new Event("notifications-changed"));
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Failed to update cabin status");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to update cabin status",
+      );
     } finally {
       setActionId(null);
     }
@@ -55,52 +71,137 @@ function AdminCabinApprovals() {
       <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="font-semibold text-[#17703a]">Main Admin</p>
-          <h1 className="mt-3 font-serif text-4xl font-bold text-[#101918]">Cabin approvals</h1>
-          <p className="mt-3 text-sm text-gray-600">Approve or reject owner-submitted cabins. Owner contact details are shown for verification.</p>
+          <h1 className="mt-3 font-serif text-4xl font-bold text-[#101918]">
+            Cabin approvals
+          </h1>
+          <p className="mt-3 text-sm text-gray-600">
+            Approve or reject owner-submitted cabins. Owner contact details are
+            shown for verification.
+          </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Link to="/admin/cabins" className="rounded-md border border-[#24472f] px-5 py-3 text-sm font-semibold text-[#24472f]">Manage cabins</Link>
-          <Link to="/admin" className="rounded-md border border-[#24472f] px-5 py-3 text-sm font-semibold text-[#24472f]">Back to dashboard</Link>
+          <Link
+            to="/admin/cabins"
+            className="rounded-md border border-[#24472f] px-5 py-3 text-sm font-semibold text-[#24472f]"
+          >
+            Manage cabins
+          </Link>
+          <Link
+            to="/admin"
+            className="rounded-md border border-[#24472f] px-5 py-3 text-sm font-semibold text-[#24472f]"
+          >
+            Back to dashboard
+          </Link>
         </div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">
         {(["PENDING", "APPROVED", "REJECTED", "ALL"] as const).map((item) => (
-          <button key={item} type="button" onClick={() => setFilter(item)} className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold ${filter === item ? "bg-[#24472f] text-white" : "bg-[#eff8f5] text-[#24472f]"}`}>{item}</button>
+          <button
+            key={item}
+            type="button"
+            onClick={() => setFilter(item)}
+            className={`cursor-pointer rounded-full px-4 py-2 text-sm font-semibold ${filter === item ? "bg-[#24472f] text-white" : "bg-[#eff8f5] text-[#24472f]"}`}
+          >
+            {item}
+          </button>
         ))}
       </div>
 
-      {error && <p className="mb-6 rounded-md bg-red-100 px-4 py-3 text-sm text-red-700">{error}</p>}
-      {success && <p className="mb-6 rounded-md bg-green-100 px-4 py-3 text-sm text-green-700">{success}</p>}
+      {error && (
+        <p className="mb-6 rounded-md bg-red-100 px-4 py-3 text-sm text-red-700">
+          {error}
+        </p>
+      )}
+      {success && (
+        <p className="mb-6 rounded-md bg-green-100 px-4 py-3 text-sm text-green-700">
+          {success}
+        </p>
+      )}
 
       {loading ? (
-        <p className="rounded-md bg-[#eff8f5] p-6 text-sm text-gray-600">Loading approvals...</p>
+        <p className="rounded-md bg-[#eff8f5] p-6 text-sm text-gray-600">
+          Loading approvals...
+        </p>
       ) : filteredCabins.length === 0 ? (
-        <p className="rounded-md bg-[#eff8f5] p-6 text-sm text-gray-600">No cabins in this filter.</p>
+        <p className="rounded-md bg-[#eff8f5] p-6 text-sm text-gray-600">
+          No cabins in this filter.
+        </p>
       ) : (
         <div className="grid gap-5">
           {filteredCabins.map((cabin) => (
-            <article key={cabin.id} className="rounded-md border border-gray-200 bg-white p-5 shadow-sm">
+            <article
+              key={cabin.id}
+              className="rounded-md border border-gray-200 bg-white p-5 shadow-sm"
+            >
               <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)_240px]">
-                {cabin.image ? <img src={getApiAssetUrl(cabin.image)} alt={cabin.name} className="h-44 w-full rounded-md object-cover" /> : <div className="h-44 rounded-md bg-[#eff8f5]" />}
+                {cabin.image ? (
+                  <img
+                    src={getApiAssetUrl(cabin.image)}
+                    alt={cabin.name}
+                    className="h-44 w-full rounded-md object-cover"
+                  />
+                ) : (
+                  <div className="h-44 rounded-md bg-[#eff8f5]" />
+                )}
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="break-words font-serif text-2xl font-bold text-[#101918]">{cabin.name}</h2>
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass(cabin.status)}`}>{cabin.status || "PENDING"}</span>
+                    <h2 className="wrap-break-word font-serif text-2xl font-bold text-[#101918]">
+                      {cabin.name}
+                    </h2>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${statusClass(cabin.status)}`}
+                    >
+                      {cabin.status || "PENDING"}
+                    </span>
                   </div>
-                  <p className="mt-2 text-sm text-gray-600">{cabin.location} · Rs. {cabin.price.toLocaleString()}pp</p>
-                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-600">{cabin.description}</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    {cabin.location} · Rs. {cabin.price.toLocaleString()}pp
+                  </p>
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-600">
+                    {cabin.description}
+                  </p>
                   <div className="mt-4 rounded-md bg-[#eff8f5] p-4 text-sm text-gray-700">
-                    <p className="font-semibold text-[#101918]">Owner: {cabin.owner?.firstName} {cabin.owner?.lastName}</p>
-                    <p className="break-words">{cabin.owner?.email}</p>
+                    <p className="font-semibold text-[#101918]">
+                      Owner: {cabin.owner?.firstName} {cabin.owner?.lastName}
+                    </p>
+                    <p className="wrap-break-word">{cabin.owner?.email}</p>
                     <p>{cabin.owner?.phone || "No contact number added"}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 lg:block lg:space-y-2">
-                  <button disabled={actionId === cabin.id || cabin.status === "APPROVED"} onClick={() => handleStatusChange(cabin.id, "APPROVED")} className="cursor-pointer rounded-md bg-[#24472f] px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">Approve</button>
-                  <button disabled={actionId === cabin.id || cabin.status === "REJECTED"} onClick={() => handleStatusChange(cabin.id, "REJECTED")} className="cursor-pointer rounded-md border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 disabled:cursor-not-allowed disabled:opacity-50">Reject</button>
-                  <button disabled={actionId === cabin.id || cabin.status === "PENDING"} onClick={() => handleStatusChange(cabin.id, "PENDING")} className="cursor-pointer rounded-md border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 disabled:cursor-not-allowed disabled:opacity-50">Set pending</button>
-                  <Link to={`/cabins/${cabin.id}`} className="block rounded-md bg-[#eff8f5] px-4 py-3 text-center text-sm font-semibold text-[#24472f]">View public page</Link>
+                <div className="flex w-full flex-col gap-3 md:w-[300px] lg:w-[300px]">
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => updateCabinStatus(cabin.id, "APPROVED")}
+                      disabled={cabin.status === "APPROVED"}
+                      className="rounded-lg bg-[#173F2A] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#102c1d] disabled:cursor-not-allowed disabled:bg-gray-400"
+                    >
+                      Approve
+                    </button>
+
+                    <button
+                      onClick={() => updateCabinStatus(cabin.id, "REJECTED")}
+                      disabled={cabin.status === "REJECTED"}
+                      className="rounded-lg border border-red-200 px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Reject
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => updateCabinStatus(cabin.id, "PENDING")}
+                    disabled={cabin.status === "PENDING"}
+                    className="rounded-lg border border-gray-200 px-5 py-3 text-sm font-semibold text-[#173F2A] transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Set pending
+                  </button>
+
+                  <Link
+                    to={`/cabins/${cabin.id}`}
+                    className="rounded-lg bg-[#EFF8F5] px-5 py-3 text-center text-sm font-semibold text-[#173F2A] transition hover:bg-[#dff0e9]"
+                  >
+                    View public page
+                  </Link>
                 </div>
               </div>
             </article>
