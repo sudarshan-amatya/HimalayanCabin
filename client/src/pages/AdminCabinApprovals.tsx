@@ -195,9 +195,7 @@ function AdminCabinApprovals() {
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         type="button"
-                        onClick={() =>
-                          handleStatusChange(cabin.id, "APPROVED")
-                        }
+                        onClick={() => handleStatusChange(cabin.id, "APPROVED")}
                         disabled={isUpdating || cabin.status === "APPROVED"}
                         className="rounded-lg bg-[#173F2A] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#102c1d] disabled:cursor-not-allowed disabled:bg-gray-400"
                       >
@@ -206,9 +204,7 @@ function AdminCabinApprovals() {
 
                       <button
                         type="button"
-                        onClick={() =>
-                          handleStatusChange(cabin.id, "REJECTED")
-                        }
+                        onClick={() => handleStatusChange(cabin.id, "REJECTED")}
                         disabled={isUpdating || cabin.status === "REJECTED"}
                         className="rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                       >
@@ -224,13 +220,6 @@ function AdminCabinApprovals() {
                     >
                       Set pending
                     </button>
-
-                    <Link
-                      to={`/cabins/${cabin.id}`}
-                      className="rounded-lg bg-[#EFF8F5] px-4 py-3 text-center text-sm font-semibold text-[#173F2A] transition hover:bg-[#dff0e9]"
-                    >
-                      View public page
-                    </Link>
                   </div>
                 </div>
               </article>
